@@ -1,0 +1,13 @@
+description: "Loads raw 311 data"
+schedule_interval: "0 0 * * *"
+default_args:
+    owner: AC
+    depends_on_past: False
+    start_date: !days_ago 1
+    email: aaron.c@jarv.us
+    email_on_failure: false
+    email_on_retry: False
+    retries: 1
+    retry_delay: !timedelta 'minutes: 5'
+    sla: !timedelta 'hours: 2'
+latest_only: True
