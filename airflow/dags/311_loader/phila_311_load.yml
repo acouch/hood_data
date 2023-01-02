@@ -1,0 +1,24 @@
+operator: CartoToWarehouseOperator
+
+warehouse_dataset: 311_phila_raw
+warehouse_table: raw
+carto_url: https://phl.carto.com/api/v2/sql
+carto_table: public_cases_fc
+carto_fields:
+  - service_request_id
+  - subject
+  - status,status_notes
+  - service_name
+  - service_code
+  - agency_responsible
+  - service_notice
+  - requested_datetime
+  - updated_datetime
+  - expected_datetime
+  - closed_datetime
+  - address
+  - zipcode
+  - media_url
+carto_date_field: requested_datetime
+carto_start_date: "2022-12-30"
+carto_end_date: "2023-01-01"
