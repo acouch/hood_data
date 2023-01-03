@@ -24,4 +24,4 @@ date_field = "requested_datetime"
 start_date = "2022-12-30"
 end_date = "2023-01-01"
 
-fetch_carto_data_by_date(date_field, start_date, end_date)
+fetch_carto_data_by_date(carto_url, fields, table, date_field, start_date, end_date)

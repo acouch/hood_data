@@ -28,3 +28,4 @@ jobs:
     - name: Sync DAGs to Airflow
       run: |
         gsutil -m rsync -d -c -r airflow/dags gs://$AIRFLOW_BUCKET/dags
+        gsutil -m rsync -d -c -r airflow/plugins gs://$AIRFLOW_BUCKET/plugins
