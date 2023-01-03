@@ -1,4 +1,4 @@
-operator: CartoToWarehouseOperator
+operator: operators.CartoToWarehouseOperator
 
 warehouse_dataset: 311_phila_raw
 warehouse_table: raw
