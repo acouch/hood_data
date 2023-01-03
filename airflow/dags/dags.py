@@ -6,11 +6,15 @@ from gusty import create_dag
 ## DAG Directories ##
 #####################
 
-# point to your dags directory
-dag_parent_dir = os.path.join(os.environ['AIRFLOW_HOME'], "dags")
+# point to dags directory
+dag_parent_dir = Path(__file__).parent
 
-# assumes any subdirectories in the dags directory are Gusty DAGs (with METADATA.yml) (excludes subdirectories like __pycache__)
-dag_directories = [os.path.join(dag_parent_dir, name) for name in os.listdir(dag_parent_dir) if os.path.isdir(os.path.join(dag_parent_dir, name)) and not name.endswith('__')]
+# assumes any subdirectories in the dags directory are Gusty DAGs (with 
+# METADATA.yml) (excludes subdirectories like __pycache__)
+dag_directories = []
+for child in dag_parent_dir.iterdir():
+    if child.is_dir() and not str(child).endswith("__"):
+        dag_directories.append(str(child))
 
 ####################
 ## DAG Generation ##
@@ -23,4 +27,4 @@ for dag_directory in dag_directories:
                                    tags = ['default', 'tags'],
                                    task_group_defaults={"tooltip": "default tooltip"},
                                    wait_for_defaults={"retries": 10, "check_existence": True},
-                                   latest_only=False)
+                                   latest_only=False)    
