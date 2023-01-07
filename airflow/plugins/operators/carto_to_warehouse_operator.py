@@ -4,8 +4,6 @@ from airflow.models import BaseOperator
 
 class CartoToWarehouseOperator(BaseOperator):
 
-    template_fields = ("bucket",)
-
     def __init__(
         self,
         warehouse_dataset,
@@ -14,10 +12,10 @@ class CartoToWarehouseOperator(BaseOperator):
         carto_table,
         carto_fields,
         carto_date_field,
-        start_date,
-        end_date,
+        carto_start_date,
+        carto_end_date,
         **kwargs,
-    ):
+    ) -> None:
         """An operator that fetches data from a carto instance and saves it to
             the warehouse.
         Args:
@@ -36,12 +34,15 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_table = carto_table
         self.carto_fields = carto_fields
         self.carto_date_field = carto_date_field
-        self.start_date = start_date
-        self.end_date = end_date
+        self.carto_start_date = carto_start_date
+        self.carto_end_date = carto_end_date
         super().__init__(**kwargs)
 
-    def execute(self, **kwargs):
-        data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.start_date, self.end_date)
+    def execute(self, context):
+        import logging
+        LOGGER = logging.getLogger("airflow.task")
+        LOGGER.info("Requesting carto data")
+        data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
         # todo: write to bucket
-        insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
-        return self.extract.save_to_gcs(fs, self.bucket)
+        LOGGER.info("Writing to bucket")
+        return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)

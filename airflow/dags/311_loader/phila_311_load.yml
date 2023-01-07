@@ -20,5 +20,6 @@ carto_fields:
   - zipcode
   - media_url
 carto_date_field: requested_datetime
-start_date: "2022-12-30"
-end_date: "2023-01-01"
+carto_start_date: 2022-12-30
+carto_end_date: 2023-01-01
+wtf: wtf
