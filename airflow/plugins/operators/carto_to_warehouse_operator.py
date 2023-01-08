@@ -1,5 +1,5 @@
 from libs.fetch_carto_data import fetch_carto_data_by_date
-#from libs.insert_json_to_bigquery import insert_json_to_bq
+from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
 
 class CartoToWarehouseOperator(BaseOperator):
