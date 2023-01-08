@@ -43,7 +43,8 @@ class CartoToWarehouseOperator(BaseOperator):
         LOGGER = logging.getLogger("airflow.task")
         LOGGER.info("Requesting carto data")
         # data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
+        LOGGER.info("Requesting carto data received")
         # todo: write to bucket
-        #LOGGER.info("Writing to bucket")
+        LOGGER.info("Writing to bucket")
         #return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
         return True
