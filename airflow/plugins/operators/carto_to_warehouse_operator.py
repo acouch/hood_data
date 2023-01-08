@@ -38,7 +38,7 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_end_date = carto_end_date
         super().__init__(**kwargs)
 
-    def execute(self):
+    def execute(self, context):
         import logging
         LOGGER = logging.getLogger("airflow.task")
         LOGGER.info("Requesting carto data")
