@@ -1,5 +1,5 @@
 from libs.fetch_carto_data import fetch_carto_data_by_date
-from libs.insert_json_to_bigquery import insert_json_to_bq
+#from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
 
 class CartoToWarehouseOperator(BaseOperator):
@@ -38,11 +38,12 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_end_date = carto_end_date
         super().__init__(**kwargs)
 
-    def execute(self, context):
+    def execute(self):
         import logging
         LOGGER = logging.getLogger("airflow.task")
         LOGGER.info("Requesting carto data")
-        data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
+        # data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
         # todo: write to bucket
-        LOGGER.info("Writing to bucket")
-        return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
+        #LOGGER.info("Writing to bucket")
+        #return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
+        return True
