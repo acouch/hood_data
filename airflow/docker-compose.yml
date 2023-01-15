@@ -70,6 +70,8 @@ x-airflow-common:
     # see https://googleapis.dev/python/google-auth/latest/user-guide.html#using-external-identities
     GOOGLE_CLOUD_PROJECT: "playground-372523"
 
+    GOOGLE_BIG_QUERY_PROJECT: "playground-372523"
+
     # Composer variables for kubernetes
     POD_CLUSTER_NAME: ""
     POD_LOCATION: "us-central1"

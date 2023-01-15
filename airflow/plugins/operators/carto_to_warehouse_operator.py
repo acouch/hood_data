@@ -1,6 +1,55 @@
 from libs.fetch_carto_data import fetch_carto_data_by_date
 from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
+import pendulum
+
+# Date should be YYYY-MM-DD format or now(), add(days=), subtract(days=) pendulum func.
+def getdate(date):
+  add_str = "add("
+  now_str = "now()"
+  sub_str = "subtract("
+  format = "%Y-%m-%d"
+  pformat = "YYYY-MM-D"
+  now = pendulum.now()
+  now_formatted = now.format(pformat)
+
+  # Checks for either add or sub format
+  if (date.startswith(add_str, 0, len(add_str)) or date.startswith(sub_str, 0, len(sub_str))) and (date[len(add_str):len(date)-3] == "days" or date[len(sub_str):len(date)-3] == "days"):
+    year = int(now_formatted[0:4])
+    month = int(now_formatted[5:7])
+    day = int(now_formatted[8:len(now_formatted)])
+    n = int(date[len(date)-2:len(date)-1])
+    # add(days=N) format
+    if date.startswith(add_str, 0, len(add_str)):
+      try:
+        newDate = pendulum.datetime(year, month, day).add(days=n).format(pformat)
+        return newDate
+      except ValueError:
+        return False
+    # subtract(days=N) format
+    elif date.startswith(sub_str, 0, len(sub_str)):
+      try:
+        newDate = pendulum.datetime(year, month, day).subtract(days=n).format(pformat)
+        return newDate
+      except ValueError:
+        return False
+  # now() format
+  elif date.startswith(now_str, 0, len(now_str)):
+    try:
+      newDate = now.strftime(format)
+      return newDate
+    except ValueError:
+      return False
+  # YYYY-MM-DD format
+  try:
+    # Formats date in YYYY-MM-DD format
+    newDate = str(datetime.datetime.strptime(date, format))[0:10]
+    # Tests if correct format
+    if (newDate == date):
+      return date
+    return False
+  except ValueError:
+    return False
 
 class CartoToWarehouseOperator(BaseOperator):
 
@@ -21,12 +70,12 @@ class CartoToWarehouseOperator(BaseOperator):
         Args:
             warehouse_dataset (str): BQ dataset where the data will be saved.
             warehouse_table (str): BQ table where the data will be saved.
-            carto_url (str):
-            carto_table (str):
-            carto_fields (array):
-            carto_date_field (str):
-            start_date (str):
-            end_date (str):
+            carto_url (str): URL for Carto API.
+            carto_table (str): Table to query from Carto.
+            carto_fields (array): Fields to retrieve and store from Carto.
+            carto_date_field (str): Date field to filter.
+            start_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
+            end_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
         """
         self.warehouse_dataset = warehouse_dataset
         self.warehouse_table = warehouse_table
@@ -39,6 +88,8 @@ class CartoToWarehouseOperator(BaseOperator):
         super().__init__(**kwargs)
 
     def execute(self, context):
+        self.carto_start_date = getdate(self.carto_start_date)
+        self.carto_end_date = getdate(self.carto_end_date)
         import logging
         LOGGER = logging.getLogger("airflow.task")
         LOGGER.info("Requesting carto data")
