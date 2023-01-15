@@ -3,53 +3,23 @@ from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
 import pendulum
 
-# Date should be YYYY-MM-DD format or now(), add(days=), subtract(days=) pendulum func.
-def getdate(date):
-  add_str = "add("
-  now_str = "now()"
-  sub_str = "subtract("
-  format = "%Y-%m-%d"
-  pformat = "YYYY-MM-D"
+# Passes params to get dates using pendulum methods.
+# Args:
+#   operator (string): "now", "add", or "subtract"
+#   operator_period (string): Any of the period values supported by pendulum
+#   operator_value (int): Value to change the operator_period
+#   format (string): Desired date format.  
+def date_change(operator, operator_period = "days", operator_value = 1, format = "YYYY-MM-DD"):
   now = pendulum.now()
-  now_formatted = now.format(pformat)
-
-  # Checks for either add or sub format
-  if (date.startswith(add_str, 0, len(add_str)) or date.startswith(sub_str, 0, len(sub_str))) and (date[len(add_str):len(date)-3] == "days" or date[len(sub_str):len(date)-3] == "days"):
-    year = int(now_formatted[0:4])
-    month = int(now_formatted[5:7])
-    day = int(now_formatted[8:len(now_formatted)])
-    n = int(date[len(date)-2:len(date)-1])
-    # add(days=N) format
-    if date.startswith(add_str, 0, len(add_str)):
-      try:
-        newDate = pendulum.datetime(year, month, day).add(days=n).format(pformat)
-        return newDate
-      except ValueError:
-        return False
-    # subtract(days=N) format
-    elif date.startswith(sub_str, 0, len(sub_str)):
-      try:
-        newDate = pendulum.datetime(year, month, day).subtract(days=n).format(pformat)
-        return newDate
-      except ValueError:
-        return False
-  # now() format
-  elif date.startswith(now_str, 0, len(now_str)):
-    try:
-      newDate = now.strftime(format)
-      return newDate
-    except ValueError:
-      return False
-  # YYYY-MM-DD format
-  try:
-    # Formats date in YYYY-MM-DD format
-    newDate = str(datetime.datetime.strptime(date, format))[0:10]
-    # Tests if correct format
-    if (newDate == date):
-      return date
-    return False
-  except ValueError:
-    return False
+  if operator == "now":
+    return now.format(format)
+  elif operator == "add":
+    date = now.add(**{operator_period:operator_value}).format(format)
+    return date
+  elif operator == "subtract":
+    date = now.subtract(**{operator_period:operator_value}).format(format)
+    return date
+  return False
 
 class CartoToWarehouseOperator(BaseOperator):
 
@@ -61,8 +31,6 @@ class CartoToWarehouseOperator(BaseOperator):
         carto_table,
         carto_fields,
         carto_date_field,
-        carto_start_date,
-        carto_end_date,
         **kwargs,
     ) -> None:
         """An operator that fetches data from a carto instance and saves it to
@@ -74,8 +42,14 @@ class CartoToWarehouseOperator(BaseOperator):
             carto_table (str): Table to query from Carto.
             carto_fields (array): Fields to retrieve and store from Carto.
             carto_date_field (str): Date field to filter.
-            start_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
-            end_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
+            carto_start_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
+            carto_end_date (str): YYYY-MM-DD date format OR 1 or 3 pendulum functions (now, add, subtract)
+            start_date_operator (string): "now", "add", or "subtract" for start date
+            start_date_operator_period (string): Any of the period values supported by pendulum for start date
+            start_date_operator_value (int): Value to change the operator_period for start date
+            end_date_operator (string): "now", "add", or "subtract" for end date
+            end_operator_period (string): Any of the period values supported by pendulum for end date
+            end_operator_value (int): Value to change the operator_period for end date
         """
         self.warehouse_dataset = warehouse_dataset
         self.warehouse_table = warehouse_table
@@ -83,13 +57,24 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_table = carto_table
         self.carto_fields = carto_fields
         self.carto_date_field = carto_date_field
-        self.carto_start_date = carto_start_date
-        self.carto_end_date = carto_end_date
+        # Explicit start and end date or pendulum date add/subtract can be added.
+        self.carto_start_date = None if 'carto_start_date' not in locals() else carto_start_date
+        self.carto_end_date =  None if 'carto_end_date' not in locals() else carto_end_date
+        self.end_date_operator = None if 'end_date_operator' not in locals() else end_date_operator
+        self.end_date_operator_period = None if 'end_date_operator_period' not in locals() else end_date_operator_period
+        self.end_date_operator_value = None if 'end_date_operator_value' not in locals() else end_date_operator_value
+        self.start_date_operator = None if 'start_date_operator' not in locals() else start_date_operator
+        self.start_date_operator_period = None if 'start_date_operator_period' not in locals() else start_date_operator_period
+        self.start_date_operator_value = None if 'start_date_operator_value' not in locals() else start_date_operator_value
         super().__init__(**kwargs)
 
     def execute(self, context):
-        self.carto_start_date = getdate(self.carto_start_date)
-        self.carto_end_date = getdate(self.carto_end_date)
+        if (self.start_date_operator):
+            self.carto_start_date = date_change(self.start_date_operator, self.start_date_operator_period, self.start_date_operator_value)
+        if (self.end_date_operator):
+            self.carto_end_date = date_change(self.end_date_operator, self.end_date_operator_period, self.end_date_operator_value)
+        if (self.carto_end_date is None or self.carto_end_date is None):
+            SystemError("carto_start_date and carto_end_date or carto_[]_operator not specified")
         import logging
         LOGGER = logging.getLogger("airflow.task")
         LOGGER.info("Requesting carto data")
