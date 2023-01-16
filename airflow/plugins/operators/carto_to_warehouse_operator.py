@@ -2,6 +2,7 @@ from libs.fetch_carto_data import fetch_carto_data_by_date
 from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
 import pendulum
+import datetime
 
 # Date should be YYYY-MM-DD format or now(), add(days=), subtract(days=) pendulum func.
 def getdate(date):
@@ -11,25 +12,22 @@ def getdate(date):
   format = "%Y-%m-%d"
   pformat = "YYYY-MM-D"
   now = pendulum.now()
-  now_formatted = now.format(pformat)
 
   # Checks for either add or sub format
+  # todo: get regex value for period and pass instead of just days.
   if (date.startswith(add_str, 0, len(add_str)) or date.startswith(sub_str, 0, len(sub_str))) and (date[len(add_str):len(date)-3] == "days" or date[len(sub_str):len(date)-3] == "days"):
-    year = int(now_formatted[0:4])
-    month = int(now_formatted[5:7])
-    day = int(now_formatted[8:len(now_formatted)])
     n = int(date[len(date)-2:len(date)-1])
     # add(days=N) format
     if date.startswith(add_str, 0, len(add_str)):
       try:
-        newDate = pendulum.datetime(year, month, day).add(days=n).format(pformat)
+        newDate = now.add(days=n).format(pformat)
         return newDate
       except ValueError:
         return False
     # subtract(days=N) format
     elif date.startswith(sub_str, 0, len(sub_str)):
       try:
-        newDate = pendulum.datetime(year, month, day).subtract(days=n).format(pformat)
+        newDate = now.subtract(days=n).format(pformat)
         return newDate
       except ValueError:
         return False

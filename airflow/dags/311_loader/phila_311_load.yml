@@ -19,6 +19,8 @@ carto_fields:
   - address
   - zipcode
   - media_url
+  - lat
+  - lon
 carto_date_field: requested_datetime
 carto_start_date: subtract(days=1)
 carto_end_date: now()
