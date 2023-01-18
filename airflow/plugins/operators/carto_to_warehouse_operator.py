@@ -1,4 +1,5 @@
 from libs.fetch_carto_data import fetch_carto_data_by_date
+from libs.fetch_carto_data import build_carto_url
 from libs.insert_json_to_bigquery import insert_json_to_bq
 from airflow.models import BaseOperator
 import pendulum
@@ -90,8 +91,9 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_end_date = getdate(self.carto_end_date)
         import logging
         LOGGER = logging.getLogger("airflow.task")
-        LOGGER.info(f"Requesting carto data from https://{self.carto_url}?filename={self.carto_table}&format=json&q=SELECT * FROM {self.carto_table} WHERE {self.carto_start_date} < {self.carto_end_date}")
-        data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
+        url = build_carto_url(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
+        LOGGER.info(f"Requesting carto data from {url}")
+        data = fetch_carto_data_by_date(url)
         LOGGER.info("Requesting carto data received")
         if data.len:
           # todo: write to bucket
