@@ -22,5 +22,5 @@ carto_fields:
   - lat
   - lon
 carto_date_field: requested_datetime
-carto_start_date: subtract(days=1)
+carto_start_date: subtract(days=2)
 carto_end_date: now()
