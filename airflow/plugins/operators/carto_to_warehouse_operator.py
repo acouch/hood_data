@@ -90,7 +90,7 @@ class CartoToWarehouseOperator(BaseOperator):
         self.carto_end_date = getdate(self.carto_end_date)
         import logging
         LOGGER = logging.getLogger("airflow.task")
-        LOGGER.info("Requesting carto data")
+        LOGGER.info(f"Requesting carto data from https://{self.cartol_url}?filename={self.carto_table}&format=json&q=SELECT * FROM {self.carto_table}} WHERE {self.carto_start_date} < {self.carto_end_date}")
         data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
         LOGGER.info("Requesting carto data received")
         # todo: write to bucket
