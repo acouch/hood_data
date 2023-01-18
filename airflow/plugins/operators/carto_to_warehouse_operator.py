@@ -95,7 +95,7 @@ class CartoToWarehouseOperator(BaseOperator):
         LOGGER.info(f"Requesting carto data from {url}")
         data = fetch_carto_data_by_date(url)
         LOGGER.info("Requesting carto data received")
-        if data.len:
+        if data:
           # todo: write to bucket
           LOGGER.info(f"Writing to bucket {self.warehouse_dataset} and table {self.warehouse_table}")
           return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
