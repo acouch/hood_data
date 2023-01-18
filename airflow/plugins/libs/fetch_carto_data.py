@@ -2,7 +2,7 @@ import requests
 import json
 import sys
 
-def build_cart_url(cartol_url, table, fields, date_field, start_date, end_date):
+def build_carto_url(cartol_url, table, fields, date_field, start_date, end_date):
     string_fields = ','.join(fields)
     where_clause = f"{date_field} >= '{start_date}' AND {date_field} < '{end_date}'"
     return f"{cartol_url}?filename={table}&format=json&q=SELECT {string_fields} FROM {table} WHERE {where_clause}"
