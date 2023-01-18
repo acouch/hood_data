@@ -93,6 +93,9 @@ class CartoToWarehouseOperator(BaseOperator):
         LOGGER.info(f"Requesting carto data from https://{self.cartol_url}?filename={self.carto_table}&format=json&q=SELECT * FROM {self.carto_table} WHERE {self.carto_start_date} < {self.carto_end_date}")
         data = fetch_carto_data_by_date(self.carto_url, self.carto_table, self.carto_fields, self.carto_date_field, self.carto_start_date, self.carto_end_date)
         LOGGER.info("Requesting carto data received")
-        # todo: write to bucket
-        LOGGER.info(f"Writing to bucket {self.warehouse_dataset} and table {self.warehouse_table}")
-        return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
+        if data.len:
+          # todo: write to bucket
+          LOGGER.info(f"Writing to bucket {self.warehouse_dataset} and table {self.warehouse_table}")
+          return insert_json_to_bq(data, self.warehouse_dataset, self.warehouse_table)
+        else:
+          LOGGER.info("No data received from carto")
