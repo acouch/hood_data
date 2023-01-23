@@ -1,0 +1,6 @@
+version: 2
+
+sources:
+  - name: raw_311_phila
+    description: Source schema for philly 311.
+    tags: 311

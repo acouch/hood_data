@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_311_phila
+    description: Raw 311 data from Philadelphia.
+    columns:
+      - name: status
+        description: The current status of the service request. (Text)
+      - name: status_notes
+       	description: Explanation of why the status was changed to current state or more details on current status than conveyed with status alone. 	Text
+      - name: updated_datetime 	  	
+        description: The date and time when the service request was last modified. (Date/Time)
+      - name: zipcode 	
+        description: The zipcode of where the service occurred. (Numeric)
+      - name: address
+        description: Human readable address or description of location. 	Text
+      - name: agency_responsible
+        description: The department in charge of the service request. Text
+      - name: expected_datetime
+        description: The date and time when the service request can be expected to be fulfilled. This may be based on a service-specific service level agreement. 	Date/Time
+      - name: location
+        description: The latitude and longitude for the location of the service request. 	Geometry
+      - name: media_url
+        description: A URL to media associated with the request, eg an image. 	URL
+      - name: requested_datetime
+        description: The date and time when the service request was made. 	Date/Time
+      - name: service_code
+        description: The unique identifier for the service or information request type. 	Numeric
+      - name: service_name
+        description: The human readable name of the service request type. 	Text
+      - name: service_notice
+        description: Information about the action expected to fulfill the request or otherwise address the information reported. 	Text
+      - name: service_request_id
+        description: The unique ID of the service request created. 	Numeric 
